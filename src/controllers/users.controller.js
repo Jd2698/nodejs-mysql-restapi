@@ -27,15 +27,21 @@ const createUser = async (req, res) => {
 	const { name, email, password } = req.body
 
 	try {
-		const [
-			rows
-		] = await pool.query(
-			'INSERT INTO users (name, email, password) VALUES (?,?,?)',
-			[name, email, password]
+		const [result] = await pool.query(
+			'SELECT id FROM users ORDER BY id DESC LIMIT 1'
 		)
 
+		const newId = parseInt(result[0].id) + 1
+
+		const [rows] = await pool.query('INSERT INTO users VALUES (?,?,?,?)', [
+			newId,
+			name,
+			email,
+			password
+		])
+
 		res.json({
-			id: rows.insertId,
+			id: newId,
 			name,
 			email
 		})
